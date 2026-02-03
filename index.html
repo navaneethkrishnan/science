@@ -1,180 +1,30 @@
-<!DOCTYPE html>
-<html lang="ml">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navalokam | Science Portal</title>
-    <style>
-        :root {
-            --bg-deep: #050a14;
-            --bg-card: #0f172a;
-            --accent: #06b6d4;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --font-head: 'Segoe UI', sans-serif;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-head); }
-        
-        body { 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
-            line-height: 1.6;
-        }
-
-        /* HEADER */
-        header {
-            padding: 20px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(5, 10, 20, 0.8);
-        }
-
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
-
-        /* HERO SECTION */
-        .hero {
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            background: radial-gradient(circle at center, #1e293b 0%, var(--bg-deep) 70%);
-        }
-
-        .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 5rem);
-            font-weight: 800;
-            margin-bottom: 20px;
-            background: linear-gradient(to right, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 700px;
-            margin-bottom: 40px;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            background: var(--accent);
-            color: #000;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 50px;
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(6, 182, 212, 0.5); }
-
-        /* ARTICLES GRID */
-        .section-title { text-align: center; margin: 80px 0 40px; font-size: 2rem; color: var(--accent); }
-        
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        
-        .article-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 25px;
-            transition: transform 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent);
-        }
-
-        .card h3 { font-size: 1.4rem; margin-bottom: 10px; }
-        .card .date { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; display: block; }
-        .card p { font-size: 0.95rem; color: #cbd5e1; }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 50px 20px;
-            margin-top: 50px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-muted);
-        }
-
-        /* ERROR BOX STYLE */
-        .error-box {
-            background: #450a0a;
-            border: 1px solid #ef4444;
-            padding: 20px;
-            border-radius: 10px;
-            color: #fca5a5;
-            max-width: 600px;
-            margin-top: 20px;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo">NAVALOKAM</div>
-        <a href="#articles" style="color:white; text-decoration:none;">Articles</a>
-    </header>
-
-    <section class="hero">
-        <h1 id="d-motto">Loading...</h1>
-        <div id="d-desc">Connecting to data...</div>
-        <a href="#articles" class="btn">Explore Science</a>
-    </section>
-
-    <div class="container" id="articles">
-        <h2 class="section-title">Latest Discoveries</h2>
-        <div class="article-grid" id="blog-container">
-            <p style="text-align:center; color: var(--accent);">Loading Articles...</p>
-        </div>
-    </div>
-
-    <footer>
-        <p>© <span id="year"></span> Navalokam Science Initiative.</p>
-    </footer>
-
-    <script>
+<script>
         document.getElementById('year').innerText = new Date().getFullYear();
 
         async function loadContent() {
             try {
-                // 1. Fetch Request
-                console.log("Attempting to fetch data.json...");
-                const response = await fetch('data.json');
+                // CACHE BUSTING TRICK:
+                // We add '?v=' + time to the URL so the browser thinks it's a new file every time.
+                const uniqueUrl = 'data.json?v=' + new Date().getTime();
                 
-                // 2. Check if File Exists
+                console.log("Fetching: " + uniqueUrl);
+                const response = await fetch(uniqueUrl);
+                
                 if (!response.ok) {
-                    throw new Error(`Data File Not Found! (Status: ${response.status}). \nMake sure uploaded file is named 'data.json' (lowercase).`);
+                    throw new Error("File found but could not be loaded.");
                 }
 
-                // 3. Parse JSON
                 const data = await response.json();
-                console.log("Data loaded successfully:", data);
+                console.log("Data Received:", data);
 
-                // 4. Update UI
-                document.getElementById('d-motto').innerText = data.motto || "No Motto Found";
-                document.getElementById('d-desc').innerText = data.description || "No Description Found";
+                // Check if keys exist, otherwise show debug info
+                if(!data.motto) {
+                    throw new Error("JSON file exists, but 'motto' is missing inside it. Check spelling.");
+                }
+
+                // Update UI
+                document.getElementById('d-motto').innerText = data.motto;
+                document.getElementById('d-desc').innerText = data.description;
 
                 const container = document.getElementById('blog-container');
                 container.innerHTML = ''; 
@@ -191,34 +41,21 @@
                         container.innerHTML += card;
                     });
                 } else {
-                    container.innerHTML = '<p style="text-align:center">No articles found inside data.json</p>';
+                    container.innerHTML = '<p style="text-align:center">No articles found.</p>';
                 }
 
             } catch (error) {
-                // 5. SHOW ERROR ON SCREEN
-                console.error("Error Details:", error);
-                
-                const errorMsg = `
-                    <div class="error-box">
-                        <h3>⚠️ Error Loading Data</h3>
-                        <p><strong>Reason:</strong> ${error.message}</p>
-                        <br>
-                        <p><strong>How to fix:</strong></p>
-                        <ul>
-                            <li>Check if 'data.json' is uploaded to GitHub.</li>
-                            <li>Check if filename is exactly 'data.json' (small letters).</li>
-                            <li>Check if data.json is in the same folder as index.html.</li>
-                        </ul>
-                    </div>
+                console.error(error);
+                document.getElementById('d-motto').innerHTML = "Data Error";
+                document.getElementById('d-desc').innerHTML = `
+                    <span style="color: #fca5a5;">
+                        വിവരങ്ങൾ എടുക്കാൻ സാധിക്കുന്നില്ല.<br>
+                        <strong>കാരണം:</strong> ${error.message}<br>
+                        (Check your data.json content format)
+                    </span>
                 `;
-                
-                document.getElementById('d-motto').innerHTML = "Connection Failed";
-                document.getElementById('d-desc').innerHTML = errorMsg;
-                document.getElementById('blog-container').innerHTML = "<p style='text-align:center; color:red;'>Data load failed.</p>";
             }
         }
 
         window.addEventListener('DOMContentLoaded', loadContent);
     </script>
-</body>
-</html>
