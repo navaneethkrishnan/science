@@ -1,61 +1,202 @@
-<script>
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Navalokam | Science</title>
+    <style>
+        /* --- CSS VARIABLES (WHITE THEME) --- */
+        :root {
+            --bg-main: #ffffff;
+            --bg-secondary: #f4f4f5; /* Light Grey for Cards */
+            --text-primary: #18181b; /* Dark Black */
+            --text-secondary: #71717a; /* Grey Text */
+            --accent-color: #000000; /* Black Accents */
+            --border-radius: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-primary); 
+            overflow-x: hidden; 
+            line-height: 1.6; 
+        }
+
+        /* HEADER */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); z-index: 100;
+        }
+        .logo { font-weight: 900; font-size: 1.5rem; letter-spacing: -1px; text-transform: uppercase; }
+
+        /* MAIN LAYOUT */
+        main { padding-top: 120px; padding-bottom: 50px; width: 90%; max-width: 1200px; margin: 0 auto; }
+
+        /* HERO SECTION */
+        .hero { text-align: left; margin-bottom: 60px; }
+        
+        h1.huge-title {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        p.lead {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            font-weight: 400;
+        }
+
+        /* BENTO GRID SYSTEM */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .bento-box {
+            background: var(--bg-secondary);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+            border: 1px solid transparent;
+        }
+        
+        .bento-box:hover {
+             transform: translateY(-5px);
+             background: #f0f0f0;
+             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        /* Styling for Science Content */
+        .bento-date {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bento-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .bento-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 4; /* Show only 4 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ERROR BOX */
+        .error-msg {
+            background: #fee2e2; color: #991b1b; padding: 20px; border-radius: 12px;
+            font-weight: bold; margin-top: 20px; border: 1px solid #f87171;
+        }
+
+        /* FOOTER */
+        footer { margin-top: 80px; padding-top: 40px; border-top: 1px solid #eee; text-align: center; color: var(--text-secondary); font-size: 0.9rem;}
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Navalokam.</div>
+        <div style="font-weight: 600; font-size: 0.9rem;">Science Portal</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1 class="huge-title" id="d-motto">Loading Content...</h1>
+            <p class="lead" id="d-desc">Connecting to the universe of knowledge...</p>
+        </section>
+
+        <div id="loading-indicator" style="font-weight:bold; color:#ccc;">Fetching Articles...</div>
+        
+        <div class="bento-grid" id="blog-container">
+            </div>
+
+        <footer>
+            <p>© <span id="year"></span> Navalokam Initiative. Designed with Minimalism.</p>
+        </footer>
+    </main>
+
+    <script>
         document.getElementById('year').innerText = new Date().getFullYear();
 
         async function loadContent() {
             try {
-                // CACHE BUSTING TRICK:
-                // We add '?v=' + time to the URL so the browser thinks it's a new file every time.
+                // CACHE BUSTING: Forces browser to get fresh data
                 const uniqueUrl = 'data.json?v=' + new Date().getTime();
                 
-                console.log("Fetching: " + uniqueUrl);
                 const response = await fetch(uniqueUrl);
                 
                 if (!response.ok) {
-                    throw new Error("File found but could not be loaded.");
+                    throw new Error("File not found or connection error.");
                 }
 
                 const data = await response.json();
-                console.log("Data Received:", data);
 
-                // Check if keys exist, otherwise show debug info
-                if(!data.motto) {
-                    throw new Error("JSON file exists, but 'motto' is missing inside it. Check spelling.");
-                }
+                // 1. UPDATE HERO SECTION
+                // Using 'innerHTML' allows <br> tags if you used them in CMS
+                if(data.motto) document.getElementById('d-motto').innerHTML = data.motto;
+                if(data.description) document.getElementById('d-desc').innerText = data.description;
 
-                // Update UI
-                document.getElementById('d-motto').innerText = data.motto;
-                document.getElementById('d-desc').innerText = data.description;
-
+                // 2. UPDATE ARTICLES GRID
                 const container = document.getElementById('blog-container');
-                container.innerHTML = ''; 
+                document.getElementById('loading-indicator').style.display = 'none'; // Hide loader
+                container.innerHTML = ''; // Clear container
 
                 if(data.articles && data.articles.length > 0) {
                     data.articles.forEach(article => {
+                        // Creating the White Bento Card
                         const card = `
-                            <div class="card">
-                                <h3>${article.title}</h3>
-                                <span class="date">${article.date}</span>
-                                <p>${article.content}</p>
+                            <div class="bento-box">
+                                <div>
+                                    <div class="bento-date">${article.date}</div>
+                                    <div class="bento-title">${article.title}</div>
+                                </div>
+                                <div class="bento-desc">${article.content}</div>
                             </div>
                         `;
                         container.innerHTML += card;
                     });
                 } else {
-                    container.innerHTML = '<p style="text-align:center">No articles found.</p>';
+                    container.innerHTML = '<p>No articles found in data.json</p>';
                 }
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('d-motto').innerHTML = "Data Error";
+                document.getElementById('loading-indicator').style.display = 'none';
                 document.getElementById('d-desc').innerHTML = `
-                    <span style="color: #fca5a5;">
-                        വിവരങ്ങൾ എടുക്കാൻ സാധിക്കുന്നില്ല.<br>
-                        <strong>കാരണം:</strong> ${error.message}<br>
-                        (Check your data.json content format)
-                    </span>
+                    <div class="error-msg">
+                        ⚠️ Error: ${error.message}<br>
+                        Check if 'data.json' is uploaded correctly.
+                    </div>
                 `;
             }
         }
 
         window.addEventListener('DOMContentLoaded', loadContent);
     </script>
+</body>
+</html>
